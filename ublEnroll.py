@@ -27,7 +27,7 @@ def main():
         else:
                 dataSeat = {'institution':bib,
                                         'area':seatingArea,
-                                        'from_date':str(date.today() + timedelta(days=2)),
+                                        'from_date':str(date.today() + timedelta(days=7)),
                                         'from_time':begin,
                                         'until_time':end,
                                         'readernumber':readernr,
@@ -37,6 +37,8 @@ def main():
                 #print(booking.json())
                 if(booking.json()['message'] != "outofreach" and booking.json()['bookingCode'] != ""):
                         print("booking sucessfully")
+                elif(booking.json()['message'] == "outofreach"):
+                        print("time or date is not valid")
                 elif(booking.json()['bookingCode'] == ""):
                         print("all seats occupied")
                 else:
