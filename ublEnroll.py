@@ -7,13 +7,17 @@ import sys
 
 
 def login(cardnumber, password):
-        dataLogin = {'readernumber':cardnumber,'password':password}
-        login = requests.post('https://seats.ub.uni-leipzig.de/api/booking/login', data = dataLogin)
+        dataLogin = {'readernumber':cardnumber,'password':password, 'logintype':'0'} #not sure what logintype does
+        try:
+                login = requests.post('https://seats.ub.uni-leipzig.de/api/booking/login', data = dataLogin)
+        except:
+                print("something went wrong while sending login request")
+                return 1
         try:
                 token = login.json()['token']
         except:
-                print("something went wrong while fetching token")
-                print("token: " + login.text)
+                print("something went wrong while fetching login token")
+                print("response: " + login.text)
                 return 1
 
         if(token == "null" and "Achtung, zuviele Nutzer sind gerade angemeldet." in login.json()['msg']):
@@ -60,11 +64,23 @@ def bookSeat(cardnumber, begin, end, bib, seatingArea, seatingAreaFallback, days
                 'from_date':str(date.today() + timedelta(days=int(days))),
                 'from_time':begin,
                 'until_time':end,
+                'tslot':'0',
+                'preference':'0',
                 'readernumber':cardnumber,
                 'token':token
                 }
-        
-        booking = requests.post('https://seats.ub.uni-leipzig.de/api/booking/booking',data = dataSeat)
+        try:
+                booking = requests.post('https://seats.ub.uni-leipzig.de/api/booking/booking',data = dataSeat)
+        except:
+                print("something went wrong while sending booking request")
+                return 1
+
+        try:
+                bookingJson = booking.json()
+        except:
+                print("something went wrong while fetching booking response")
+                print("response: " + booking.text)
+                return 1
        
         if(booking.json()['message'] != "outofreach" and booking.json()['bookingCode'] != ""):
                 print("booking sucessfully")
