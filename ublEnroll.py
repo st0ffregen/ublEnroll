@@ -9,7 +9,12 @@ import sys
 def login(cardnumber, password):
         dataLogin = {'readernumber':cardnumber,'password':password}
         login = requests.post('https://seats.ub.uni-leipzig.de/api/booking/login', data = dataLogin)
-        token = login.json()['token']
+        try:
+                token = login.json()['token']
+        except:
+                print("something went wrong while fetching token")
+                print("token: " + login.text)
+                return 1
 
         if(token == "null" and "Achtung, zuviele Nutzer sind gerade angemeldet." in login.json()['msg']):
                 print("two many people on site")
