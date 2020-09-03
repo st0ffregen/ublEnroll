@@ -3,7 +3,7 @@
 Reserviert einen Platz n Tage im Voraus in einer der Bibliotheken der Universität Leipzig.
 
 ## Beispielnutzung
-Reserviert einen Platz für eine Person mit folgendne Daten  
+Reserviert einen Platz für eine Person mit folgenden Daten  
 
 Kartennummer: 123456-1  
 Passwort: password123  
