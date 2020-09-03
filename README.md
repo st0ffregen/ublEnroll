@@ -9,7 +9,7 @@ Kartennummer: 123456-1
 Passwort: password123  
 Standort: Bibliotheca Albertina  
 Bereich: Mitte 2. OG  
-Zweiter Bereich: Keine Spezifizierung  
+Fallback Bereich: Keine Spezifizierung  
 Uhrzeit: 10:00 bis 15:00 Uhr    
 Tage im voraus: 7  
 
