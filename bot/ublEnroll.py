@@ -17,7 +17,6 @@ def login(readeNumber, password, logger):
 
 
 def bookSeat(readerNumber, begin, end, bib, seatingArea, fitting, days, token, logger):
-
     logger.info('book seat')
 
     payload = {'institution': bib,
@@ -35,7 +34,64 @@ def bookSeat(readerNumber, begin, end, bib, seatingArea, fitting, days, token, l
 
     response = requests.post('https://seats.ub.uni-leipzig.de/booking-internal/booking/booking', data=payload)
 
-    logger.info(response.json())
+    jsonResponse = response.json()
+
+    logger.info(jsonResponse)
+
+    return jsonResponse['workspaceId'], jsonResponse['bookingCode']
+
+
+def stornoSeat(begin, end, readerNumber, stornoToken, bookingCode, logger):
+
+    logger.info('storno seat with bookingCode ' + bookingCode)
+
+    payload = {
+               'from': begin,
+               'until': end,
+               'readernumber': readerNumber,
+               'token': stornoToken,
+        'bookingCode': bookingCode
+    }
+
+    logger.info(payload)
+
+    response = requests.post('https://seats.ub.uni-leipzig.de/api/booking/storno', data=payload)
+
+    jsonResponse = response.json()
+
+    logger.info(jsonResponse)
+
+    if jsonResponse['message'] != 'Ihre Buchung wurde gelöscht.':
+        # token might be outdated
+        return False
+
+    return True
+
+
+def loginToStorno(readeNumber, password, logger):
+    logger.info('login to storno seat')
+    payload = {'readernumber': readeNumber, 'password': password, 'logintype': '1'}
+    response = requests.post('https://seats.ub.uni-leipzig.de/api/booking/login', data=payload)
+    return response.json()['token']
+
+
+def enforceSeatReservervation(enforceSeatsArray, enforceAttempts, readerNumber, password, begin, end, bib, seatingArea, fitting, days, logger):
+    logger.info('enforce seat reservation in seats set ' + ', '.join(enforceSeatsArray))
+    enforceSeatsArray = [seat.strip() for seat in enforceSeatsArray[1:-1].split(',')]
+    stornoToken = None
+
+    for i in range(0, int(enforceAttempts)):
+        token = login(readerNumber, password, logger)
+        seat, bookingCode = bookSeat(readerNumber, begin, end, bib, seatingArea, fitting, days, token, logger)
+
+        if seat not in enforceSeatsArray:
+            if stornoToken is None:
+                stornoToken = loginToStorno(readerNumber, password, logger)
+            isTokenValid = stornoSeat(begin, end, readerNumber, stornoToken, bookingCode, logger)
+            if isTokenValid is False:
+                stornoToken = loginToStorno(readerNumber, password, logger)
+        else:
+            break
 
 
 def configureLogger():
@@ -65,9 +121,15 @@ def main():
     seatingArea = os.environ['seatingArea']
     days = os.environ['days']
     fitting = os.environ['fitting']
+    enforceSeatsArray = os.environ['enforceSeatsArray']
+    enforceAttempts = os.environ['enforceAttempts']
 
-    token = login(readerNumber, password, logger)
-    bookSeat(readerNumber, begin, end, bib, seatingArea, fitting, days, token, logger)
+    if enforceAttempts != '' and int(enforceAttempts) > 1 and enforceSeatsArray != '':
+        enforceSeatReservervation(enforceSeatsArray, enforceAttempts, readerNumber, password, begin, end, bib,
+                                  seatingArea, fitting, days, logger)
+    else:
+        token = login(readerNumber, password, logger)
+        bookSeat(readerNumber, begin, end, bib, seatingArea, fitting, days, token, logger)
 
 
 if __name__ == '__main__':
