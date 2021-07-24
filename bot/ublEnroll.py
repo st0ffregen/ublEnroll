@@ -84,7 +84,7 @@ def enforceSeatReservervation(enforceSeatsArray, enforceAttempts, readerNumber, 
         token = login(readerNumber, password, logger)
         seat, bookingCode = bookSeat(readerNumber, begin, end, bib, seatingArea, fitting, days, token, logger)
 
-        if seat not in enforceSeatsArray:
+        if seat not in enforceSeatsArray and i < int(enforceAttempts) - 1:
             if stornoToken is None:
                 stornoToken = loginToStorno(readerNumber, password, logger)
             isTokenValid = stornoSeat(begin, end, readerNumber, stornoToken, bookingCode, logger)
