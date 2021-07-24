@@ -6,6 +6,7 @@
     * (depending on your chosen amount of attempts and cardinality of the seat set)
 * ENFORCE SEAT FEATURE: You can enforce a reservation of one seat out of a preferred set of seats
   * For this feature please specify the maximum of attempts and your seat set in typical array notation (e.g., ```[114, 117, 12]```) in the ```.env``` file
+  * The last attempt will not be canceled. 
   * Please note that you will receive two e-mails for each failed attempt. 
     * An e-mail integration for clean up is currently under heavy development.
   
