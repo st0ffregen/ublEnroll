@@ -5,6 +5,7 @@ from datetime import timedelta, date, datetime
 import os
 from dotenv import load_dotenv
 import logging
+import sys
 
 load_dotenv()
 
@@ -76,13 +77,16 @@ def loginToStorno(readeNumber, password, logger):
 
 
 def enforceSeatReservervation(enforceSeatsArray, enforceAttempts, readerNumber, password, begin, end, bib, seatingArea, fitting, days, logger):
-    logger.info('enforce seat reservation in seats set ' + ', '.join(enforceSeatsArray))
     enforceSeatsArray = [seat.strip() for seat in enforceSeatsArray[1:-1].split(',')]
+    logger.info('enforce seat reservation in seats set ' + ', '.join(enforceSeatsArray))
     stornoToken = None
 
     for i in range(0, int(enforceAttempts)):
         token = login(readerNumber, password, logger)
         seat, bookingCode = bookSeat(readerNumber, begin, end, bib, seatingArea, fitting, days, token, logger)
+        if bookingCode == '':
+            logger.info('something went wrong. exiting')
+            sys.exit(1)
 
         if seat not in enforceSeatsArray and i < int(enforceAttempts) - 1:
             if stornoToken is None:
