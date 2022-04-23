@@ -1,3 +1,5 @@
+## The University of Leipzig has discontinued this service. Therefore, the script is no longer maintained.
+
 # ublEnroll
 * Use this script to automatically reserve a seat in the Leipzig University Library.
 * It's best used on a daily basis to reserve a seat for the day in seven days. If you are on a unix like system, crontab might be a good choice.
